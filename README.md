@@ -23,24 +23,69 @@ Tool to automatically nuke a macOS system on a scheduled basis.
 
 ## API
 
+```sh
+doomsday <command> [options]
 ```
-$ doomsday [api]
-```
 
-#### set [days]
+#### `set [days]`
 
-Sets a doom to trigger in [days] (default 30).
+Arms doom to trigger in `days` days. Defaults to `30` and refuses schedules
+longer than `366` days.
 
-### whatsup
+#### `whatsup`
 
-Output what's going on.
+Prints the current state as key/value output, including status, doom time,
+cryo target, remaining time, and the last doom attempt when present.
 
-#### abort
+#### `abort`
 
-Abort the doom.
+Aborts any armed doom and clears the due-run marker.
 
-#### doom [--yes]
+#### `doom [--yes] [--target path] [--skip-cryo] [--fetch-installer] [--installer app] [--force] [--no-countdown]`
 
-This triggers the system to be wiped and reinstalled.
+Runs preflight, freezes the environment with cryo, then invokes Apple's
+`startosinstall --eraseinstall` reinstall flow.
 
-Note: Unless `--yes` is provided, it will prompt before proceeding.
+Unless `--yes` is provided, it prompts for a destructive confirmation phrase.
+`--target` overrides the cryo target, `--installer` points at a specific macOS
+installer, `--fetch-installer` downloads one if needed, `--force` overrides
+power and disk-space preflight failures, and `--no-countdown` skips the final
+10 second countdown. `--skip-cryo` requires `--force`.
+
+#### `tick`
+
+Checks armed doom state, sends threshold notifications, and opens Terminal for
+the scheduled doom when the deadline is due.
+
+#### `doctor`
+
+Prints diagnostics as key/value output, including version, state directory,
+cryo availability, installer availability, AC power, and FileVault state.
+
+#### `install-launchd [--allow-usb-agent]`
+
+Installs a per-user LaunchAgent that runs `doomsday tick` hourly and at login.
+It refuses LaunchAgents that point at removable volumes unless
+`--allow-usb-agent` is supplied.
+
+#### `uninstall-launchd`
+
+Unloads and removes the LaunchAgent.
+
+#### `help`
+
+Prints usage.
+
+#### `version`
+
+Prints the doomsday version.
+
+### Environment
+
+- `DOOMSDAY_STATE_DIR`: state and log directory. Defaults to
+  `~/.local/share/doomsday`.
+- `DOOMSDAY_CRYO_TARGET`: default cryo target. Defaults to `/Volumes/CRYO`.
+- `DOOMSDAY_INSTALLER`: explicit macOS installer app path.
+- `DOOMSDAY_FULL_INSTALLER_VERSION`: version used by `--fetch-installer`.
+- `DOOMSDAY_VOLUME_OWNER`: Apple Silicon Volume Owner user for
+  `startosinstall`.
