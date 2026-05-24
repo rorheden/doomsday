@@ -2,6 +2,8 @@
 
 Tool to automatically nuke a macOS system on a scheduled basis.
 
+UPDATE: This script is outdated and may no longer work as expected.
+
 <img src="static/avatar.jpg" />
 
 ## Why
